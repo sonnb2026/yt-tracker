@@ -623,17 +623,6 @@ function renderTable() {
 }
 
 function copyVideoStats(v, btn) {
-  const headers = [
-    "Tiêu đề",
-    "Kênh",
-    "Ngày đăng",
-    "Thời lượng",
-    "Lượt xem",
-    "View/giờ",
-    "Lượt thích",
-    "Bình luận",
-    "Sub kênh",
-  ];
   const row = [
     v.title ?? "",
     v.channelTitle ?? "",
@@ -646,7 +635,7 @@ function copyVideoStats(v, btn) {
     v.subscriberCount ?? "",
   ];
   // Tab-separated: pastes as separate columns directly into Excel/Google Sheets.
-  const tsv = [headers, row].map((cols) => cols.join("\t")).join("\n");
+  const tsv = row.join("\t");
 
   const showCopied = () => {
     if (!btn) return;
