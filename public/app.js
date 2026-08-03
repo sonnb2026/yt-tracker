@@ -583,7 +583,10 @@ function renderTable() {
           </a>
           <div class="video-cell__info">
             <div class="video-cell__title">${escapeHtml(v.title)}</div>
-            <button class="comments-btn" data-video-id="${v.videoId}">💬 Xem bình luận</button>
+            <div class="video-cell__actions">
+              <button class="comments-btn" data-video-id="${v.videoId}">💬 Xem bình luận</button>
+              <button class="comments-btn copy-btn" data-video-id="${v.videoId}">📋 Sao chép</button>
+            </div>
           </div>
         </div>
       </td>
@@ -602,13 +605,81 @@ function renderTable() {
     )
     .join("");
 
-  els.tbody.querySelectorAll(".comments-btn").forEach((btn) => {
+  els.tbody.querySelectorAll(".comments-btn:not(.copy-btn)").forEach((btn) => {
     btn.addEventListener("click", () => openModal(btn.dataset.videoId));
+  });
+
+  els.tbody.querySelectorAll(".copy-btn").forEach((btn) => {
+    btn.addEventListener("click", (e) => {
+      e.stopPropagation();
+      const video = filteredVideos.find((v) => v.videoId === btn.dataset.videoId);
+      if (video) copyVideoStats(video, btn);
+    });
   });
 
   els.tbody.querySelectorAll(".channel-cell").forEach((cell) => {
     cell.addEventListener("click", () => openChannelModal(cell.dataset.channelId));
   });
+}
+
+function copyVideoStats(v, btn) {
+  const headers = [
+    "Tiêu đề",
+    "Kênh",
+    "Ngày đăng",
+    "Thời lượng",
+    "Lượt xem",
+    "View/giờ",
+    "Lượt thích",
+    "Bình luận",
+    "Sub kênh",
+  ];
+  const row = [
+    v.title ?? "",
+    v.channelTitle ?? "",
+    fmtDate(v.publishedAt),
+    fmtDuration(v.duration),
+    v.viewCount ?? "",
+    v.viewsPerHour ?? "",
+    v.likeCount ?? "",
+    v.commentCount ?? "",
+    v.subscriberCount ?? "",
+  ];
+  // Tab-separated: pastes as separate columns directly into Excel/Google Sheets.
+  const tsv = [headers, row].map((cols) => cols.join("\t")).join("\n");
+
+  const showCopied = () => {
+    if (!btn) return;
+    const original = btn.textContent;
+    btn.textContent = "✅ Đã sao chép";
+    btn.disabled = true;
+    setTimeout(() => {
+      btn.textContent = original;
+      btn.disabled = false;
+    }, 1500);
+  };
+
+  if (navigator.clipboard && navigator.clipboard.writeText) {
+    navigator.clipboard.writeText(tsv).then(showCopied).catch(() => fallbackCopy(tsv, showCopied));
+  } else {
+    fallbackCopy(tsv, showCopied);
+  }
+}
+
+function fallbackCopy(text, onDone) {
+  const ta = document.createElement("textarea");
+  ta.value = text;
+  ta.style.position = "fixed";
+  ta.style.opacity = "0";
+  document.body.appendChild(ta);
+  ta.select();
+  try {
+    document.execCommand("copy");
+    onDone();
+  } catch (err) {
+    console.error("Copy failed", err);
+  }
+  document.body.removeChild(ta);
 }
 
 function escapeHtml(str) {
