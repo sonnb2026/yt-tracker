@@ -1,8 +1,16 @@
 {
-  "list": "MyTab",
-  "lastUpdated": null,
-  "channelCount": 0,
-  "videoCount": 0,
-  "quotaUnitsUsed": 0,
-  "errors": []
+  "list": "TBN",
+  "lastUpdated": "2026-08-03T12:01:15.301Z",
+  "channelCount": 6,
+  "videoCount": 257,
+  "quotaUnitsUsed": 1847,
+  "apiKeysConfigured": 3,
+  "allKeysExhausted": false,
+  "errors": [
+    {
+      "channel": "@example_channel_handle",
+      "error": "Channel not found for \"@example_channel_handle\""
+    }
+  ],
+  "replyErrors": []
 }
