@@ -875,6 +875,13 @@ thead .col-num,
   overflow: hidden;
 }
 
+.video-cell__actions {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  align-self: flex-start;
+}
+
 .comments-btn {
   align-self: flex-start;
   background: var(--panel-raised);
@@ -888,6 +895,14 @@ thead .col-num,
   transition: border-color 0.2s var(--ease), color 0.2s var(--ease), background 0.2s var(--ease);
 }
 .comments-btn:hover { border-color: var(--teal); color: var(--teal); background: var(--teal-soft); }
+
+.copy-btn:disabled {
+  cursor: default;
+  border-color: var(--teal);
+  color: var(--teal);
+  background: var(--teal-soft);
+  opacity: 1;
+}
 
 .channel-cell {
   color: var(--text-muted);
