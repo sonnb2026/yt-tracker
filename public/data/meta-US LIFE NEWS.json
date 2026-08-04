@@ -1,16 +1,11 @@
 {
   "list": "US LIFE NEWS",
-  "lastUpdated": "2026-08-04T05:15:44.138Z",
-  "channelCount": 4,
+  "lastUpdated": "2026-08-04T07:12:43.377Z",
+  "channelCount": 3,
   "videoCount": 3186,
-  "quotaUnitsUsed": 5561,
+  "quotaUnitsUsed": 226,
   "apiKeysConfigured": 3,
   "allKeysExhausted": false,
-  "errors": [
-    {
-      "channel": "@example_channel_handle",
-      "error": "Channel not found for \"@example_channel_handle\""
-    }
-  ],
+  "errors": [],
   "replyErrors": []
 }
