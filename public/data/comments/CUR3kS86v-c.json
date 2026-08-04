@@ -1,5 +1,25 @@
 {
   "videoId": "CUR3kS86v-c",
   "disabled": false,
-  "comments": []
+  "comments": [
+    {
+      "id": "UgzckQ4RH_A16ijugIt4AaABAg",
+      "author": "@PatricioOlivares-w9x",
+      "authorImage": "https://yt3.ggpht.com/ytc/AIdro_kumUAO-vDqQ2LEQWnE98-Xq0zXVpU65GxPkF_IPO9-vNgWNB8GdeOI-ErUh6jDMTWOLQ=s48-c-k-c0x00ffffff-no-rj",
+      "text": "Chile",
+      "likeCount": 0,
+      "publishedAt": "2026-08-04T00:35:02Z",
+      "replyCount": 1,
+      "replies": [
+        {
+          "id": "UgzckQ4RH_A16ijugIt4AaABAg.A_3nMHry5DTA_41tA5eQ5M",
+          "author": "@MundoelporAventuras",
+          "authorImage": "https://yt3.ggpht.com/WxqCtSVYH7qW6P-BlccyXkGIKpDVRsjbx8V8a3JOhwsBN8dHWXD8NPwxjzY2juwkPQ1jWTYD5Ts=s48-c-k-c0x00ffffff-no-rj",
+          "text": "¡Qué bueno que te gustó el documental! ¿Hay algo específico de Chile que te gustaría ver en un próximo video?",
+          "likeCount": 0,
+          "publishedAt": "2026-08-04T02:50:44Z"
+        }
+      ]
+    }
+  ]
 }
