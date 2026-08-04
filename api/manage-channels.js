@@ -96,6 +96,7 @@ module.exports = async function handler(req, res) {
 
     const tabKey = tab.trim();
     let commitMessage = "";
+    let removedChannelEntry = null;
 
     if (action === "addTab") {
       if (current[tabKey]) {
@@ -156,11 +157,12 @@ module.exports = async function handler(req, res) {
         return res.status(404).json({ error: `Không tìm thấy tab "${tabKey}".` });
       }
       const clean = channel.trim().toLowerCase();
-      const before = current[tabKey].length;
-      current[tabKey] = current[tabKey].filter((c) => c.toLowerCase() !== clean);
-      if (current[tabKey].length === before) {
+      const removedEntry = current[tabKey].find((c) => c.toLowerCase() === clean);
+      if (!removedEntry) {
         return res.status(404).json({ error: "Không tìm thấy kênh này trong tab." });
       }
+      removedChannelEntry = removedEntry;
+      current[tabKey] = current[tabKey].filter((c) => c.toLowerCase() !== clean);
       commitMessage = `chore: xoá kênh khỏi tab "${tabKey}" qua web`;
     }
 
@@ -192,6 +194,8 @@ module.exports = async function handler(req, res) {
     } else if (action === "removeTab") {
       await deleteDataFile(`videos-${tabKey}.json`, ghHeaders, owner, repo, ref);
       await deleteDataFile(`meta-${tabKey}.json`, ghHeaders, owner, repo, ref);
+    } else if (action === "removeChannel") {
+      await pruneChannelVideos(tabKey, removedChannelEntry, ghHeaders, owner, repo, ref);
     }
 
     return res.status(200).json({ ok: true, channels: current });
@@ -239,6 +243,69 @@ async function renameDataFile(oldName, newName, ghHeaders, owner, repo, ref) {
     });
   } catch {
     // Bỏ qua - dữ liệu sẽ tự tạo lại đúng tên mới ở lần fetch tiếp theo.
+  }
+}
+
+// Sau khi xoá 1 kênh khỏi tab, dọn luôn video của kênh đó ra khỏi
+// videos-<tab>.json (thay vì để đó chờ lần fetch full-history tiếp theo mới
+// mất đi, như comment ở đầu fetch-data.mjs mô tả). Tra channelId qua
+// channel-map-<tab>.json (do fetch-data.mjs ghi ra) rồi lọc theo channelId.
+// Bỏ qua an toàn nếu chưa có dữ liệu gì (kênh mới thêm, chưa fetch lần nào).
+async function pruneChannelVideos(tabKey, rawChannel, ghHeaders, owner, repo, ref) {
+  if (!rawChannel) return;
+  try {
+    const base = `https://api.github.com/repos/${owner}/${repo}/contents/public/data`;
+
+    const mapGetRes = await fetch(`${base}/channel-map-${tabKey}.json?ref=${ref}`, { headers: ghHeaders });
+    if (!mapGetRes.ok) return; // chưa từng fetch tab này, không có gì để dọn
+    const mapFile = await mapGetRes.json();
+    const channelMap = JSON.parse(Buffer.from(mapFile.content, "base64").toString("utf-8"));
+
+    // Khớp key không phân biệt hoa/thường, để chắc ăn dù channels.json và
+    // channel-map có lệch nhau chút ít về cách viết.
+    const mapKey = Object.keys(channelMap).find((k) => k.toLowerCase() === rawChannel.toLowerCase());
+    const channelId = mapKey ? channelMap[mapKey] : null;
+
+    // Xoá luôn entry của kênh này khỏi channel-map, kể cả khi không tìm được
+    // channelId (dọn rác), để lần fetch tới coi đây là kênh hoàn toàn mới nếu
+    // có ai thêm lại.
+    if (mapKey) {
+      delete channelMap[mapKey];
+      await fetch(`${base}/channel-map-${tabKey}.json`, {
+        method: "PUT",
+        headers: { ...ghHeaders, "Content-Type": "application/json" },
+        body: JSON.stringify({
+          message: `chore: dọn channel-map sau khi xoá kênh khỏi tab "${tabKey}" qua web`,
+          content: Buffer.from(JSON.stringify(channelMap, null, 2) + "\n", "utf-8").toString("base64"),
+          sha: mapFile.sha,
+          branch: ref,
+        }),
+      });
+    }
+
+    if (!channelId) return; // kênh chưa từng resolve thành công, chắc chắn chưa có video nào
+
+    const videosGetRes = await fetch(`${base}/videos-${tabKey}.json?ref=${ref}`, { headers: ghHeaders });
+    if (!videosGetRes.ok) return;
+    const videosFile = await videosGetRes.json();
+    const videos = JSON.parse(Buffer.from(videosFile.content, "base64").toString("utf-8"));
+
+    const kept = videos.filter((v) => v.channelId !== channelId);
+    if (kept.length === videos.length) return; // không có video nào của kênh này trong file
+
+    await fetch(`${base}/videos-${tabKey}.json`, {
+      method: "PUT",
+      headers: { ...ghHeaders, "Content-Type": "application/json" },
+      body: JSON.stringify({
+        message: `chore: xoá ${videos.length - kept.length} video của kênh đã xoá khỏi tab "${tabKey}" qua web`,
+        content: Buffer.from(JSON.stringify(kept, null, 2) + "\n", "utf-8").toString("base64"),
+        sha: videosFile.sha,
+        branch: ref,
+      }),
+    });
+  } catch {
+    // Bỏ qua - kênh đã bị xoá khỏi channels.json rồi (việc quan trọng nhất),
+    // dọn video cũ chỉ là tiện ích, không chặn hành động xoá kênh.
   }
 }
 
