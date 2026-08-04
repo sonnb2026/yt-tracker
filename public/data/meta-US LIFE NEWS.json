@@ -1,0 +1,16 @@
+{
+  "list": "TBN",
+  "lastUpdated": "2026-08-04T04:52:04.995Z",
+  "channelCount": 1,
+  "videoCount": 257,
+  "quotaUnitsUsed": 1,
+  "apiKeysConfigured": 3,
+  "allKeysExhausted": false,
+  "errors": [
+    {
+      "channel": "@example_channel_handle",
+      "error": "Channel not found for \"@example_channel_handle\""
+    }
+  ],
+  "replyErrors": []
+}
