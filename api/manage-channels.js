@@ -183,15 +183,18 @@ module.exports = async function handler(req, res) {
     }
 
     // 3. Best-effort: giữ lại dữ liệu cũ khi đổi tên tab (đổi tên luôn file
-    // videos-<tab>.json / meta-<tab>.json), hoặc dọn dẹp khi xoá tab. Nếu file
-    // chưa tồn tại (tab mới, chưa fetch lần nào) thì bỏ qua, không tính là lỗi.
+    // videos-<tab>.json / meta-<tab>.json / channel-map-<tab>.json), hoặc dọn
+    // dẹp cả 3 file này khi xoá tab. Nếu file chưa tồn tại (tab mới, chưa
+    // fetch lần nào) thì bỏ qua, không tính là lỗi.
     if (action === "renameTab") {
       const newKey = newTab.trim();
       await renameDataFile(`videos-${tabKey}.json`, `videos-${newKey}.json`, ghHeaders, owner, repo, ref);
       await renameDataFile(`meta-${tabKey}.json`, `meta-${newKey}.json`, ghHeaders, owner, repo, ref);
+      await renameDataFile(`channel-map-${tabKey}.json`, `channel-map-${newKey}.json`, ghHeaders, owner, repo, ref);
     } else if (action === "removeTab") {
       await deleteDataFile(`videos-${tabKey}.json`, ghHeaders, owner, repo, ref);
       await deleteDataFile(`meta-${tabKey}.json`, ghHeaders, owner, repo, ref);
+      await deleteDataFile(`channel-map-${tabKey}.json`, ghHeaders, owner, repo, ref);
     }
 
     return res.status(200).json({ ok: true, channels: current });
