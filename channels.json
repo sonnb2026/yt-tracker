@@ -1,5 +1,7 @@
 {
   "US News": [
-    "@example_channel_handle"
+    "@example_channel_handle",
+    "https://www.youtube.com/@AmazingGlobalDiscoveries",
+    "https://www.youtube.com/@BestTravelDocumentary4k"
   ]
 }
