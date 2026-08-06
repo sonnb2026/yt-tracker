@@ -1,0 +1,16 @@
+{
+  "list": "US News",
+  "lastUpdated": "2026-08-06T12:37:49.591Z",
+  "channelCount": 3,
+  "videoCount": 85,
+  "quotaUnitsUsed": 736,
+  "apiKeysConfigured": 3,
+  "allKeysExhausted": false,
+  "errors": [
+    {
+      "channel": "@example_channel_handle",
+      "error": "Channel not found for \"@example_channel_handle\""
+    }
+  ],
+  "replyErrors": []
+}
