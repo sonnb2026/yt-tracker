@@ -164,7 +164,35 @@ module.exports = async function handler(req, res) {
       commitMessage = `chore: xoá kênh khỏi tab "${tabKey}" qua web`;
     }
 
-    // 2. Ghi channels.json mới lên GitHub.
+    // 2. Best-effort: giữ lại dữ liệu cũ khi đổi tên tab (đổi tên luôn file
+    // videos-<tab>.json / meta-<tab>.json / channel-map-<tab>.json), hoặc dọn
+    // dẹp cả 3 file này khi xoá tab. Nếu file chưa tồn tại (tab mới, chưa
+    // fetch lần nào) thì bỏ qua, không tính là lỗi.
+    //
+    // QUAN TRỌNG: việc này PHẢI làm xong TRƯỚC khi commit channels.json ở
+    // bước 3 bên dưới, vì commit channels.json là commit khớp
+    // `paths: channels.json` trong fetch-data.yml nên sẽ kích hoạt workflow
+    // ngay lập tức. actions/checkout@v4 trong workflow mặc định checkout
+    // đúng SHA đã kích hoạt sự kiện push - nếu các commit đổi tên/xoá file ở
+    // đây xảy ra SAU đó, workflow sẽ không thấy được chúng, rồi khi workflow
+    // tự commit dữ liệu mới fetch được và `git push`, push đó sẽ bị GitHub
+    // từ chối (non-fast-forward) vì nhánh main đã có thêm các commit này rồi
+    // - khiến cả job báo lỗi dù bản thân việc fetch dữ liệu không có gì sai.
+    // Làm các commit này trước, commit channels.json sau cùng, đảm bảo
+    // workflow được kích hoạt SAU khi mọi thứ trên main đã ổn định.
+    if (action === "renameTab") {
+      const newKey = newTab.trim();
+      await renameDataFile(`videos-${tabKey}.json`, `videos-${newKey}.json`, ghHeaders, owner, repo, ref);
+      await renameDataFile(`meta-${tabKey}.json`, `meta-${newKey}.json`, ghHeaders, owner, repo, ref);
+      await renameDataFile(`channel-map-${tabKey}.json`, `channel-map-${newKey}.json`, ghHeaders, owner, repo, ref);
+    } else if (action === "removeTab") {
+      await deleteDataFile(`videos-${tabKey}.json`, ghHeaders, owner, repo, ref);
+      await deleteDataFile(`meta-${tabKey}.json`, ghHeaders, owner, repo, ref);
+      await deleteDataFile(`channel-map-${tabKey}.json`, ghHeaders, owner, repo, ref);
+    }
+
+    // 3. Ghi channels.json mới lên GitHub - làm SAU CÙNG (xem giải thích ở
+    // bước 2), vì đây là commit sẽ kích hoạt workflow fetch-data.yml.
     const newContent = Buffer.from(JSON.stringify(current, null, 2) + "\n", "utf-8").toString("base64");
     const putRes = await fetch(contentsUrl, {
       method: "PUT",
@@ -180,21 +208,6 @@ module.exports = async function handler(req, res) {
     if (!putRes.ok) {
       const t = await putRes.text();
       return res.status(502).json({ error: `Không ghi được channels.json (HTTP ${putRes.status}): ${t.slice(0, 300)}` });
-    }
-
-    // 3. Best-effort: giữ lại dữ liệu cũ khi đổi tên tab (đổi tên luôn file
-    // videos-<tab>.json / meta-<tab>.json / channel-map-<tab>.json), hoặc dọn
-    // dẹp cả 3 file này khi xoá tab. Nếu file chưa tồn tại (tab mới, chưa
-    // fetch lần nào) thì bỏ qua, không tính là lỗi.
-    if (action === "renameTab") {
-      const newKey = newTab.trim();
-      await renameDataFile(`videos-${tabKey}.json`, `videos-${newKey}.json`, ghHeaders, owner, repo, ref);
-      await renameDataFile(`meta-${tabKey}.json`, `meta-${newKey}.json`, ghHeaders, owner, repo, ref);
-      await renameDataFile(`channel-map-${tabKey}.json`, `channel-map-${newKey}.json`, ghHeaders, owner, repo, ref);
-    } else if (action === "removeTab") {
-      await deleteDataFile(`videos-${tabKey}.json`, ghHeaders, owner, repo, ref);
-      await deleteDataFile(`meta-${tabKey}.json`, ghHeaders, owner, repo, ref);
-      await deleteDataFile(`channel-map-${tabKey}.json`, ghHeaders, owner, repo, ref);
     }
 
     return res.status(200).json({ ok: true, channels: current });
@@ -221,7 +234,12 @@ async function renameDataFile(oldName, newName, ghHeaders, owner, repo, ref) {
     if (!getRes.ok) return; // không có file cũ, không sao cả
     const file = await getRes.json();
 
-    await fetch(`${base}/${newName}`, {
+    // file.content có thể thiếu nếu file cũ quá lớn (Contents API GET không
+    // trả về content cho file lớn) - trong trường hợp đó KHÔNG được xoá file
+    // cũ ở dưới, nếu không dữ liệu sẽ mất trắng mà không có file mới thay thế.
+    if (typeof file.content !== "string") return;
+
+    const putRes = await fetch(`${base}/${newName}`, {
       method: "PUT",
       headers: { ...ghHeaders, "Content-Type": "application/json" },
       body: JSON.stringify({
@@ -230,6 +248,9 @@ async function renameDataFile(oldName, newName, ghHeaders, owner, repo, ref) {
         branch: ref,
       }),
     });
+    // Chỉ xoá file cũ nếu file mới đã tạo thành công - tránh mất dữ liệu nếu
+    // PUT thất bại (rate limit, lỗi mạng, v.v.).
+    if (!putRes.ok) return;
 
     await fetch(`${base}/${oldName}`, {
       method: "DELETE",
