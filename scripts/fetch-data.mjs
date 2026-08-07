@@ -561,6 +561,31 @@ async function fetchList(listName, rawChannels) {
     }
   }
 
+  // Kênh đã bị xoá khỏi channels.json (qua "Quản lý kênh" hoặc sửa tay)
+  // không còn xuất hiện trong rawChannels ở vòng lặp trên. Vì videoMap là một
+  // merge tích luỹ qua các lần chạy (xem giải thích phía trên), nếu không dọn
+  // riêng thì video của kênh đã xoá sẽ tồn tại vĩnh viễn trong
+  // videos-<tab>.json dù kênh không còn trong danh sách nữa. Đối chiếu
+  // channelMap (chứa mọi kênh từng được resolve) với danh sách hiện tại để
+  // tìm và dọn các kênh đã biến mất, cả trong channelMap lẫn videoMap.
+  const currentRawLower = new Set(rawChannels.map((c) => c.toLowerCase()));
+  for (const staleRawChannel of Object.keys(channelMap)) {
+    if (currentRawLower.has(staleRawChannel.toLowerCase())) continue;
+    const removedChannelId = channelMap[staleRawChannel];
+    delete channelMap[staleRawChannel];
+    if (!removedChannelId) continue;
+    let removedCount = 0;
+    for (const [videoId, v] of videoMap) {
+      if (v.channelId === removedChannelId) {
+        videoMap.delete(videoId);
+        removedCount++;
+      }
+    }
+    console.log(
+      `  - Kênh "${staleRawChannel}" đã bị xoá khỏi tab, dọn ${removedCount} video (${removedChannelId}) khỏi dữ liệu.`
+    );
+  }
+
   await saveChannelMap(listName, channelMap);
 
   const allVideos = [...videoMap.values()].sort((a, b) => new Date(b.publishedAt) - new Date(a.publishedAt));
