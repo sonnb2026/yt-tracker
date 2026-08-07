@@ -59,7 +59,27 @@ jobs:
           git add public/data
           if git diff --staged --quiet; then
             echo "Không có gì thay đổi."
-          else
-            git commit -m "chore: cập nhật dữ liệu YouTube $(date -u +'%Y-%m-%d %H:%M UTC')"
-            git push
+            exit 0
           fi
+          git commit -m "chore: cập nhật dữ liệu YouTube $(date -u +'%Y-%m-%d %H:%M UTC')"
+
+          # main có thể đã nhận thêm commit khác trong lúc job này đang chạy
+          # (vd trang "Quản lý kênh" đổi tên/xoá tab qua GitHub Contents API,
+          # trigger commit đó không đi qua job này) - plain `git push` sẽ bị
+          # từ chối (non-fast-forward) trong trường hợp đó. Rebase lên
+          # main mới nhất rồi thử lại thay vì để cả job fail oan.
+          for i in 1 2 3 4 5; do
+            if git push; then
+              echo "Push thành công."
+              exit 0
+            fi
+            echo "Push bị từ chối (main có commit mới hơn) - rebase và thử lại (lần $i)..."
+            git fetch origin "$GITHUB_REF_NAME"
+            if ! git rebase "origin/$GITHUB_REF_NAME"; then
+              echo "Rebase thất bại - dừng lại, cần kiểm tra thủ công."
+              exit 1
+            fi
+            sleep $((RANDOM % 5 + 1))
+          done
+          echo "Push thất bại sau nhiều lần thử."
+          exit 1
