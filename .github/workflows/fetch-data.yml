@@ -13,6 +13,10 @@ on:
         description: "Lấy TOÀN BỘ video của mỗi kênh (bỏ qua giới hạn ~50 video gần nhất) - tốn nhiều quota hơn"
         type: boolean
         default: false
+      full_history_channels:
+        description: "Chỉ lấy TOÀN BỘ lịch sử cho các kênh này (phân tách bởi dấu phẩy, để trống = không áp dụng riêng)"
+        type: string
+        default: ""
   push:
     paths:
       - "channels.json"
@@ -40,6 +44,7 @@ jobs:
           YOUTUBE_API_KEY: ${{ secrets.YOUTUBE_API_KEY }}
           MAX_VIDEOS_PER_CHANNEL: "50"
           FULL_CHANNEL_HISTORY: ${{ github.event.inputs.full_channel_history || 'false' }}
+          FULL_HISTORY_CHANNELS: ${{ github.event.inputs.full_history_channels || '' }}
           MAX_COMMENTS_PER_VIDEO: "100"
           MAX_REPLIES_PER_COMMENT: "20"
           COMMENT_ORDER: "relevance"
@@ -47,6 +52,7 @@ jobs:
         run: node scripts/fetch-data.mjs
 
       - name: Commit updated data
+        if: ${{ !cancelled() }}
         run: |
           git config user.name "github-actions[bot]"
           git config user.email "github-actions[bot]@users.noreply.github.com"
