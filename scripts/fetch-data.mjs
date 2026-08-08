@@ -632,27 +632,44 @@ async function main() {
   await writeFile(path.join(DATA_DIR, "tabs.json"), JSON.stringify(listNames, null, 2));
 
   let grandTotalVideos = [];
+  let allListsProcessed = true;
   for (const listName of listNames) {
     const videos = await fetchList(listName, channelLists[listName]);
     grandTotalVideos = grandTotalVideos.concat(videos);
     if (keysExhausted) {
       console.log("\nTất cả API key đã hết quota, dừng sớm các danh sách còn lại.");
+      allListsProcessed = false;
       break;
     }
   }
 
   // Prune comment files for videos no longer tracked in ANY list.
-  try {
-    const trackedIds = new Set(grandTotalVideos.map((v) => v.videoId));
-    const existingFiles = await readdir(COMMENTS_DIR);
-    for (const file of existingFiles) {
-      const id = file.replace(/\.json$/, "");
-      if (!trackedIds.has(id)) {
-        await unlink(path.join(COMMENTS_DIR, file));
+  //
+  // CHỈ làm việc này khi mọi tab trong channels.json đều đã được fetch xong
+  // trong lần chạy này. Nếu hết quota giữa chừng và phải `break` sớm (xem ở
+  // trên), grandTotalVideos sẽ THIẾU toàn bộ video của các tab chưa kịp
+  // fetch - dù các video đó vẫn còn nguyên trong videos-<tab>.json. Nếu vẫn
+  // chạy prune trong trường hợp đó, comment của TẤT CẢ video thuộc các tab
+  // chưa kịp fetch sẽ bị xoá nhầm (vì không có trong trackedIds), và vì
+  // commentCount của video đó không đổi ở lần fetch sau nên script sẽ không
+  // tự fetch lại - bình luận mất vĩnh viễn cho tới khi có video mới hoặc bật
+  // force_refresh_comments. Bỏ qua bước dọn dẹp khi bị cắt ngang, đợi lần
+  // chạy sau có đủ quota fetch hết mọi tab rồi dọn cũng không sao.
+  if (allListsProcessed) {
+    try {
+      const trackedIds = new Set(grandTotalVideos.map((v) => v.videoId));
+      const existingFiles = await readdir(COMMENTS_DIR);
+      for (const file of existingFiles) {
+        const id = file.replace(/\.json$/, "");
+        if (!trackedIds.has(id)) {
+          await unlink(path.join(COMMENTS_DIR, file));
+        }
       }
+    } catch {
+      // ignore
     }
-  } catch {
-    // ignore
+  } else {
+    console.log("\nBỏ qua bước dọn dẹp comment thừa vì lần chạy này bị cắt ngang (hết quota) - chưa fetch hết mọi tab.");
   }
 
   console.log(`\nHoàn tất tất cả danh sách (${listNames.join(", ")}). Tổng video: ${grandTotalVideos.length}. Ước tính quota dùng: ${quotaUnits}.`);
