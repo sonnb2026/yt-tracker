@@ -2,7 +2,7 @@ name: Fetch YouTube Data
 
 on:
   schedule:
-    - cron: "0 23 * * *" # 23:00 UTC = 06:00 giờ Việt Nam, chạy 1 lần/ngày - fetch TOÀN BỘ mọi tab/kênh
+    - cron: "0 23 * * *" # 23:00 UTC = 06:00 giờ Việt Nam, chạy 1 lần/ngày
   workflow_dispatch:
     inputs:
       force_refresh_comments:
@@ -17,19 +17,9 @@ on:
         description: "Chỉ lấy TOÀN BỘ lịch sử cho các kênh này (phân tách bởi dấu phẩy, để trống = không áp dụng riêng)"
         type: string
         default: ""
-      single_tab:
-        description: "[Nội bộ - do trang 'Quản lý kênh' gọi khi thêm kênh/tab mới] Chỉ fetch đúng tab này, bỏ qua mọi tab khác. Để trống = fetch mọi tab (dùng cho cron / nút Fetch dữ liệu)."
-        type: string
-        default: ""
-      single_channels:
-        description: "[Nội bộ] Đi kèm single_tab - chỉ fetch (các) kênh này trong tab đó (phân tách bởi dấu phẩy), bỏ qua các kênh khác cùng tab."
-        type: string
-        default: ""
-  # KHÔNG còn trigger tự động theo `push: paths: channels.json` nữa. Trước
-  # đây mọi thay đổi channels.json (kể cả đổi tên/xoá tab, xoá kênh qua trang
-  # "Quản lý kênh") đều tự kích hoạt fetch TOÀN BỘ - giờ manage-channels.js tự
-  # gọi workflow_dispatch ở trên với input phù hợp cho từng hành động (hoặc
-  # không gọi gì cả với đổi tên/xoá), thay vì dựa vào push trigger này.
+  push:
+    paths:
+      - "channels.json"
 
 permissions:
   contents: write
@@ -55,8 +45,6 @@ jobs:
           MAX_VIDEOS_PER_CHANNEL: "50"
           FULL_CHANNEL_HISTORY: ${{ github.event.inputs.full_channel_history || 'false' }}
           FULL_HISTORY_CHANNELS: ${{ github.event.inputs.full_history_channels || '' }}
-          SINGLE_TAB: ${{ github.event.inputs.single_tab || '' }}
-          SINGLE_CHANNELS: ${{ github.event.inputs.single_channels || '' }}
           MAX_COMMENTS_PER_VIDEO: "100"
           MAX_REPLIES_PER_COMMENT: "20"
           COMMENT_ORDER: "relevance"
@@ -76,11 +64,10 @@ jobs:
           git commit -m "chore: cập nhật dữ liệu YouTube $(date -u +'%Y-%m-%d %H:%M UTC')"
 
           # main có thể đã nhận thêm commit khác trong lúc job này đang chạy
-          # (vd chạy tay + cron trùng giờ, hoặc trang "Quản lý kênh" gọi thêm
-          # 1 lần fetch single-channel khác trong lúc lần này chưa xong) -
-          # plain `git push` sẽ bị từ chối (non-fast-forward) trong trường
-          # hợp đó. Rebase lên main mới nhất rồi thử lại thay vì để cả job
-          # fail oan.
+          # (vd trang "Quản lý kênh" đổi tên/xoá tab qua GitHub Contents API,
+          # trigger commit đó không đi qua job này) - plain `git push` sẽ bị
+          # từ chối (non-fast-forward) trong trường hợp đó. Rebase lên
+          # main mới nhất rồi thử lại thay vì để cả job fail oan.
           for i in 1 2 3 4 5; do
             if git push; then
               echo "Push thành công."
