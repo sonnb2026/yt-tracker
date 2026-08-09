@@ -112,6 +112,26 @@ function shouldUseFullHistory(rawChannel) {
   return FULL_HISTORY_CHANNELS.some((c) => lower.includes(c) || c.includes(lower));
 }
 
+// SINGLE_TAB + SINGLE_CHANNELS together restrict this run to just ONE tab and
+// just the channel(s) listed there (loose match, same style as
+// FULL_HISTORY_CHANNELS above) - used by the "thêm kênh" flow in
+// "Quản lý kênh" so adding one channel only spends quota fetching THAT
+// channel, instead of re-fetching every other channel in every tab. Every
+// other channel/tab is left completely untouched this run (their existing
+// data in videos-<tab>.json simply isn't rewritten).
+const SINGLE_TAB = (process.env.SINGLE_TAB || "").trim();
+const SINGLE_CHANNELS = (process.env.SINGLE_CHANNELS || "")
+  .split(",")
+  .map((s) => s.trim().toLowerCase())
+  .filter(Boolean);
+if (SINGLE_TAB) {
+  console.log(`SINGLE_TAB="${SINGLE_TAB}", SINGLE_CHANNELS: ${SINGLE_CHANNELS.join(", ") || "(none)"} - chỉ fetch (các) kênh này, bỏ qua mọi tab/kênh khác.`);
+}
+function matchesSingleChannel(rawChannel) {
+  const lower = rawChannel.toLowerCase();
+  return SINGLE_CHANNELS.some((c) => lower.includes(c) || c.includes(lower));
+}
+
 const MAX_COMMENTS_PER_VIDEO = parseInt(process.env.MAX_COMMENTS_PER_VIDEO || "100", 10);
 const MAX_REPLIES_PER_COMMENT = parseInt(process.env.MAX_REPLIES_PER_COMMENT || "20", 10);
 const COMMENT_ORDER = process.env.COMMENT_ORDER || "relevance";
@@ -468,6 +488,13 @@ async function fetchList(listName, rawChannels) {
   const videoMap = new Map(previousVideos);
 
   for (const rawChannel of rawChannels) {
+    // Chế độ single-channel (xem SINGLE_TAB/SINGLE_CHANNELS ở trên): bỏ qua
+    // hoàn toàn mọi kênh không khớp - không gọi API cho kênh đó, giữ nguyên
+    // dữ liệu cũ của nó trong videoMap (đã có sẵn từ previousVideos ở trên).
+    if (SINGLE_TAB && SINGLE_CHANNELS.length && !matchesSingleChannel(rawChannel)) {
+      console.log(`\n=== Channel: ${rawChannel} === (bỏ qua - không thuộc SINGLE_CHANNELS)`);
+      continue;
+    }
     let channel = null;
     const isNewChannel = !channelMap[rawChannel];
     try {
@@ -628,12 +655,29 @@ async function main() {
   // channels.json (including via the "Quản lý kênh" panel on the site) is
   // enough on its own; nobody needs to touch any HTML ever again. Written
   // up front, before the fetch loop, so the tab list stays correct even if
-  // this run gets cut short (e.g. quota runs out partway through).
+  // this run gets cut short (e.g. quota runs out partway through). Always
+  // reflects EVERY tab in channels.json, even in SINGLE_TAB mode below,
+  // since the tab list itself isn't restricted - only which channels get
+  // fetched this run is.
   await writeFile(path.join(DATA_DIR, "tabs.json"), JSON.stringify(listNames, null, 2));
 
+  if (SINGLE_TAB && !channelLists[SINGLE_TAB]) {
+    console.error(`SINGLE_TAB "${SINGLE_TAB}" không tồn tại trong channels.json - dừng lại, không fetch gì cả.`);
+    process.exit(1);
+  }
+  // Trong chế độ single-channel, chỉ fetch đúng 1 tab (tab chứa kênh vừa
+  // thêm) - mọi tab khác giữ nguyên dữ liệu, không đụng tới.
+  const listNamesToFetch = SINGLE_TAB ? [SINGLE_TAB] : listNames;
+
   let grandTotalVideos = [];
-  let allListsProcessed = true;
-  for (const listName of listNames) {
+  // false bất cứ khi nào lần chạy này KHÔNG xử lý hết mọi tab - áp dụng cho
+  // cả trường hợp hết quota giữa chừng (đặt lại ở dưới) lẫn chế độ
+  // SINGLE_TAB (chủ đích chỉ chạy 1 tab) - cả hai đều khiến grandTotalVideos
+  // thiếu video của các tab không được xử lý, nên bước dọn dẹp comment thừa
+  // ngay dưới đây phải được bỏ qua trong cả hai trường hợp (xem giải thích ở
+  // bước dọn dẹp).
+  let allListsProcessed = !SINGLE_TAB;
+  for (const listName of listNamesToFetch) {
     const videos = await fetchList(listName, channelLists[listName]);
     grandTotalVideos = grandTotalVideos.concat(videos);
     if (keysExhausted) {
@@ -646,15 +690,15 @@ async function main() {
   // Prune comment files for videos no longer tracked in ANY list.
   //
   // CHỈ làm việc này khi mọi tab trong channels.json đều đã được fetch xong
-  // trong lần chạy này. Nếu hết quota giữa chừng và phải `break` sớm (xem ở
-  // trên), grandTotalVideos sẽ THIẾU toàn bộ video của các tab chưa kịp
-  // fetch - dù các video đó vẫn còn nguyên trong videos-<tab>.json. Nếu vẫn
-  // chạy prune trong trường hợp đó, comment của TẤT CẢ video thuộc các tab
-  // chưa kịp fetch sẽ bị xoá nhầm (vì không có trong trackedIds), và vì
-  // commentCount của video đó không đổi ở lần fetch sau nên script sẽ không
-  // tự fetch lại - bình luận mất vĩnh viễn cho tới khi có video mới hoặc bật
-  // force_refresh_comments. Bỏ qua bước dọn dẹp khi bị cắt ngang, đợi lần
-  // chạy sau có đủ quota fetch hết mọi tab rồi dọn cũng không sao.
+  // trong lần chạy này (xem allListsProcessed ở trên - false nếu hết quota
+  // giữa chừng HOẶC nếu đây là chế độ SINGLE_TAB). Nếu chạy prune trong khi
+  // grandTotalVideos thiếu video của các tab chưa xử lý, comment của TẤT CẢ
+  // video thuộc các tab đó sẽ bị xoá nhầm (vì không có trong trackedIds), và
+  // vì commentCount của video đó không đổi ở lần fetch sau nên script sẽ
+  // không tự fetch lại - bình luận mất vĩnh viễn cho tới khi có video mới
+  // hoặc bật force_refresh_comments. Bỏ qua bước dọn dẹp trong cả hai
+  // trường hợp, đợi lần chạy full tiếp theo (cron hoặc bấm nút Fetch dữ
+  // liệu) xử lý hết mọi tab rồi dọn cũng không sao.
   if (allListsProcessed) {
     try {
       const trackedIds = new Set(grandTotalVideos.map((v) => v.videoId));
@@ -669,10 +713,14 @@ async function main() {
       // ignore
     }
   } else {
-    console.log("\nBỏ qua bước dọn dẹp comment thừa vì lần chạy này bị cắt ngang (hết quota) - chưa fetch hết mọi tab.");
+    console.log(
+      SINGLE_TAB
+        ? "\nBỏ qua bước dọn dẹp comment thừa vì đây là lần chạy SINGLE_TAB (chỉ 1 tab) - không phải lần fetch đầy đủ."
+        : "\nBỏ qua bước dọn dẹp comment thừa vì lần chạy này bị cắt ngang (hết quota) - chưa fetch hết mọi tab."
+    );
   }
 
-  console.log(`\nHoàn tất tất cả danh sách (${listNames.join(", ")}). Tổng video: ${grandTotalVideos.length}. Ước tính quota dùng: ${quotaUnits}.`);
+  console.log(`\nHoàn tất (${listNamesToFetch.join(", ")}). Tổng video: ${grandTotalVideos.length}. Ước tính quota dùng: ${quotaUnits}.`);
 }
 
 main().catch((err) => {
