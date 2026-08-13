@@ -1,11 +1,16 @@
 {
   "list": "US News",
-  "lastUpdated": "2026-08-12T05:18:15.188Z",
+  "lastUpdated": "2026-08-13T05:22:50.744Z",
   "channelCount": 3,
-  "videoCount": 2293,
-  "quotaUnitsUsed": 505,
+  "videoCount": 2295,
+  "quotaUnitsUsed": 330,
   "apiKeysConfigured": 3,
   "allKeysExhausted": false,
-  "errors": [],
+  "errors": [
+    {
+      "channel": "https://www.youtube.com/@ahomesteadjourney",
+      "error": "playlistItems failed: playlistNotFound"
+    }
+  ],
   "replyErrors": []
 }
