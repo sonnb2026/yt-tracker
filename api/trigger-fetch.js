@@ -23,7 +23,9 @@
 //
 // Optional:
 //   GITHUB_WORKFLOW_FILE     defaults to "fetch-data.yml"
-//   GITHUB_REF               defaults to "main"
+//   GITHUB_REF               fallback thủ công, chỉ dùng khi VERCEL_GIT_COMMIT_REF
+//                             (Vercel tự cấp, đúng nhánh deploy hiện tại) không có sẵn.
+//                             Mặc định cuối cùng "main" nếu cả 2 đều thiếu.
 
 module.exports = async function handler(req, res) {
   if (req.method !== "POST") {
@@ -32,7 +34,7 @@ module.exports = async function handler(req, res) {
   }
 
   const body = typeof req.body === "string" ? safeJsonParse(req.body) : req.body || {};
-  const { forceRefreshComments, fullChannelHistory, fullHistoryChannels } = body;
+  const { forceRefreshComments, fullChannelHistory, fullHistoryChannels, onlyChannels, onlyList } = body;
 
   const token = process.env.GITHUB_TOKEN;
   const owner = process.env.GITHUB_OWNER;
@@ -45,7 +47,13 @@ module.exports = async function handler(req, res) {
   }
 
   const workflowFile = process.env.GITHUB_WORKFLOW_FILE || "fetch-data.yml";
-  const ref = process.env.GITHUB_REF || "main";
+  // Ưu tiên VERCEL_GIT_COMMIT_REF - biến Vercel TỰ ĐỘNG cấp cho mọi deploy,
+  // đúng bằng tên nhánh của chính bản deploy đang chạy (production lẫn
+  // preview). Nhờ vậy bấm "Fetch dữ liệu" trên 1 preview deploy (nhánh
+  // review) sẽ dispatch workflow đúng trên nhánh đó, không bị lệch sang
+  // main như khi dùng GITHUB_REF cố định. GITHUB_REF chỉ còn là fallback thủ
+  // công (vd chạy ngoài Vercel, hoặc cố tình muốn preview cũng ghi vào main).
+  const ref = process.env.VERCEL_GIT_COMMIT_REF || process.env.GITHUB_REF || "main";
 
   try {
     const ghRes = await fetch(
@@ -64,6 +72,11 @@ module.exports = async function handler(req, res) {
             force_refresh_comments: forceRefreshComments ? "true" : "false",
             full_channel_history: fullChannelHistory ? "true" : "false",
             full_history_channels: typeof fullHistoryChannels === "string" ? fullHistoryChannels : "",
+            // Chỉ được set khi gọi nội bộ từ manage-channels.js sau khi thêm
+            // kênh/tab mới - nút "Fetch dữ liệu" trên web không gửi 2 field
+            // này nên mặc định vẫn là fetch toàn bộ như trước.
+            only_channels: typeof onlyChannels === "string" ? onlyChannels : "",
+            only_list: typeof onlyList === "string" ? onlyList : "",
           },
         }),
       }
