@@ -14,12 +14,18 @@
 // endpoint exposes any secret to the browser.
 //
 // Required environment variables (same ones trigger-fetch.js uses):
-//   GITHUB_TOKEN   Needs "Contents: Read and write" permission on the repo
-//                  (a classic PAT with the "repo" scope already has this).
+//   GITHUB_TOKEN   Needs "Contents: Read and write" (để sửa channels.json)
+//                  VÀ "Actions: Read and write" (để tự dispatch fetch giới
+//                  hạn only_channels/only_list ngay sau khi thêm kênh - xem
+//                  dispatchOnlyChannelsFetch bên dưới). Một classic PAT với
+//                  scope "repo" đã có đủ cả 2 quyền này.
 //   GITHUB_OWNER
 //   GITHUB_REPO
 // Optional:
-//   GITHUB_REF     defaults to "main"
+//   GITHUB_REF             fallback thủ công, chỉ dùng khi VERCEL_GIT_COMMIT_REF
+//                          (Vercel tự cấp, đúng nhánh deploy hiện tại) không có sẵn.
+//                          Mặc định cuối cùng "main" nếu cả 2 đều thiếu.
+//   GITHUB_WORKFLOW_FILE   defaults to "fetch-data.yml" (tên workflow để dispatch)
 
 module.exports = async function handler(req, res) {
   if (req.method !== "POST") {
@@ -36,7 +42,12 @@ module.exports = async function handler(req, res) {
       error: `Server chưa cấu hình đủ biến môi trường: ${missing.join(", ")} (vào Vercel Settings > Environment Variables).`,
     });
   }
-  const ref = process.env.GITHUB_REF || "main";
+  // Ưu tiên VERCEL_GIT_COMMIT_REF - biến Vercel TỰ ĐỘNG cấp cho mọi deploy,
+  // đúng bằng tên nhánh của chính bản deploy đang chạy. Nhờ vậy sửa
+  // channels.json / dispatch fetch từ 1 preview deploy (nhánh review) sẽ
+  // ghi/dispatch đúng trên nhánh đó, không bị lệch sang main như khi dùng
+  // GITHUB_REF cố định (xem cùng logic trong trigger-fetch.js).
+  const ref = process.env.VERCEL_GIT_COMMIT_REF || process.env.GITHUB_REF || "main";
 
   const body = typeof req.body === "string" ? safeJsonParse(req.body) : req.body || {};
   const { action, tab, channel, newTab } = body;
@@ -169,17 +180,11 @@ module.exports = async function handler(req, res) {
     // dẹp cả 3 file này khi xoá tab. Nếu file chưa tồn tại (tab mới, chưa
     // fetch lần nào) thì bỏ qua, không tính là lỗi.
     //
-    // QUAN TRỌNG: việc này PHẢI làm xong TRƯỚC khi commit channels.json ở
-    // bước 3 bên dưới, vì commit channels.json là commit khớp
-    // `paths: channels.json` trong fetch-data.yml nên sẽ kích hoạt workflow
-    // ngay lập tức. actions/checkout@v4 trong workflow mặc định checkout
-    // đúng SHA đã kích hoạt sự kiện push - nếu các commit đổi tên/xoá file ở
-    // đây xảy ra SAU đó, workflow sẽ không thấy được chúng, rồi khi workflow
-    // tự commit dữ liệu mới fetch được và `git push`, push đó sẽ bị GitHub
-    // từ chối (non-fast-forward) vì nhánh main đã có thêm các commit này rồi
-    // - khiến cả job báo lỗi dù bản thân việc fetch dữ liệu không có gì sai.
-    // Làm các commit này trước, commit channels.json sau cùng, đảm bảo
-    // workflow được kích hoạt SAU khi mọi thứ trên main đã ổn định.
+    // Vẫn làm bước này TRƯỚC khi commit channels.json ở bước 3 (dù giờ
+    // channels.json không còn trigger workflow qua `push` nữa, nên rủi ro
+    // race-condition với 1 job đang chạy song song không còn như trước) -
+    // đơn giản là để nếu addChannel/addTab dispatch fetch ngay sau đó (bước
+    // 4), file dữ liệu đã ở tên đúng trước khi workflow chạy.
     if (action === "renameTab") {
       const newKey = newTab.trim();
       await renameDataFile(`videos-${tabKey}.json`, `videos-${newKey}.json`, ghHeaders, owner, repo, ref);
@@ -191,8 +196,9 @@ module.exports = async function handler(req, res) {
       await deleteDataFile(`channel-map-${tabKey}.json`, ghHeaders, owner, repo, ref);
     }
 
-    // 3. Ghi channels.json mới lên GitHub - làm SAU CÙNG (xem giải thích ở
-    // bước 2), vì đây là commit sẽ kích hoạt workflow fetch-data.yml.
+    // 3. Ghi channels.json mới lên GitHub. Commit này KHÔNG còn tự kích hoạt
+    // workflow nữa (đã bỏ trigger `push: paths: channels.json` khỏi
+    // fetch-data.yml) - việc dispatch fetch (nếu cần) làm tường minh ở bước 4.
     const newContent = Buffer.from(JSON.stringify(current, null, 2) + "\n", "utf-8").toString("base64");
     const putRes = await fetch(contentsUrl, {
       method: "PUT",
@@ -210,7 +216,44 @@ module.exports = async function handler(req, res) {
       return res.status(502).json({ error: `Không ghi được channels.json (HTTP ${putRes.status}): ${t.slice(0, 300)}` });
     }
 
-    return res.status(200).json({ ok: true, channels: current });
+    // 4. Chỉ khi thêm kênh/tab mới mới cần fetch ngay - dispatch workflow
+    // giới hạn đúng (các) kênh vừa thêm, không đụng tới kênh nào khác trong
+    // tab (xem dispatchOnlyChannelsFetch ở trên). Xoá/đổi tên kênh hoặc tab
+    // không cần fetch ngay lập tức nên không dispatch gì thêm ở đây - việc
+    // dọn dữ liệu tương ứng sẽ tự xảy ra ở lần cron hàng ngày kế tiếp, hoặc
+    // khi ai đó bấm "Fetch dữ liệu" thủ công.
+    let dispatched = false;
+    if (action === "addChannel") {
+      dispatched = await dispatchOnlyChannelsFetch({
+        owner,
+        repo,
+        ref,
+        token,
+        onlyList: tabKey,
+        onlyChannels: toAdd.join(","),
+      });
+    } else if (action === "addTab") {
+      dispatched = await dispatchOnlyChannelsFetch({
+        owner,
+        repo,
+        ref,
+        token,
+        onlyList: tabKey,
+        onlyChannels: deduped.join(","),
+      });
+    }
+
+    return res.status(200).json({
+      ok: true,
+      channels: current,
+      dispatched,
+      message:
+        action === "addChannel" || action === "addTab"
+          ? dispatched
+            ? "Đã thêm! Đang lấy dữ liệu riêng cho kênh vừa thêm (không đụng tới kênh khác), vài phút nữa tải lại trang để xem."
+            : "Đã thêm, nhưng không tự kích hoạt fetch được - bấm nút \"Fetch dữ liệu\" để lấy dữ liệu kênh mới."
+          : "Đã lưu thay đổi. Dữ liệu liên quan sẽ được dọn ở lần fetch tiếp theo (cron hàng ngày, hoặc bấm \"Fetch dữ liệu\" để chạy ngay).",
+    });
   } catch (err) {
     return res.status(500).json({ error: `Lỗi: ${err.message}` });
   }
@@ -221,6 +264,45 @@ function safeJsonParse(str) {
     return JSON.parse(str);
   } catch {
     return {};
+  }
+}
+
+// Kích hoạt workflow fetch-data.yml nhưng giới hạn CHỈ (các) kênh vừa thêm
+// (only_channels) trong đúng 1 tab (only_list) - thay vì để trigger `push`
+// cũ tự fetch lại TOÀN BỘ mọi kênh trong tab mỗi khi channels.json đổi (tốn
+// quota oan cho những kênh không hề thay đổi gì). Kênh mới luôn được
+// fetch-data.mjs tự động lấy full history ngay lần đầu (xem isNewChannel
+// trong scripts/fetch-data.mjs) nên không cần truyền thêm full_history_channels
+// ở đây. Best-effort: nếu dispatch lỗi, channels.json vẫn đã commit thành
+// công - người dùng có thể tự bấm "Fetch dữ liệu" để lấy dữ liệu kênh mới.
+async function dispatchOnlyChannelsFetch({ owner, repo, ref, token, onlyList, onlyChannels }) {
+  const workflowFile = process.env.GITHUB_WORKFLOW_FILE || "fetch-data.yml";
+  try {
+    const res = await fetch(
+      `https://api.github.com/repos/${owner}/${repo}/actions/workflows/${workflowFile}/dispatches`,
+      {
+        method: "POST",
+        headers: {
+          Authorization: `Bearer ${token}`,
+          Accept: "application/vnd.github+json",
+          "X-GitHub-Api-Version": "2022-11-28",
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          ref,
+          inputs: {
+            force_refresh_comments: "false",
+            full_channel_history: "false",
+            full_history_channels: "",
+            only_channels: onlyChannels,
+            only_list: onlyList,
+          },
+        }),
+      }
+    );
+    return res.status === 204;
+  } catch {
+    return false;
   }
 }
 
