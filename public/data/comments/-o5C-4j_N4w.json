@@ -3,24 +3,52 @@
   "disabled": false,
   "comments": [
     {
+      "id": "UgwjaVK-CeraZGeey6p4AaABAg",
+      "author": "@DiscoveryWorldKR",
+      "authorImage": "https://yt3.ggpht.com/kJWv53ewJRJQ2JdNTcQLxKoLmpz7E6MvpW6i6GWrVqXAJs0nHvM6-TAKPQzfXVrxaECo-JzWu0A=s48-c-k-c0x00ffffff-no-rj",
+      "text": "태국 야시장의 북적거리는 활기와 길거리 음식들은 언제 봐도 군침이 돕니다! 갓 볶아낸 팟타이에 시원한 음료 한잔 곁들이며 현지 바이브를 제대로 만끽하고 싶네요.",
+      "likeCount": 0,
+      "publishedAt": "2026-08-18T01:53:42Z",
+      "replyCount": 0,
+      "replies": []
+    },
+    {
       "id": "Ugwwzo3T9N18hG-HaBF4AaABAg",
       "author": "@이우식-t4x",
       "authorImage": "https://yt3.ggpht.com/ytc/AIdro_mJXBkVULP-qakR-9QFSIsa8WRvoWjP8Z1TrNbZsR8=s48-c-k-c0x00ffffff-no-rj",
       "text": "예뻐요",
-      "likeCount": 0,
+      "likeCount": 1,
       "publishedAt": "2026-08-17T07:57:45Z",
-      "replyCount": 0,
-      "replies": []
+      "replyCount": 1,
+      "replies": [
+        {
+          "id": "Ugwwzo3T9N18hG-HaBF4AaABAg.A_b3MDYTNYUA_czXf7Ldiw",
+          "author": "@DiscoveryWorldKR",
+          "authorImage": "https://yt3.ggpht.com/kJWv53ewJRJQ2JdNTcQLxKoLmpz7E6MvpW6i6GWrVqXAJs0nHvM6-TAKPQzfXVrxaECo-JzWu0A=s48-c-k-c0x00ffffff-no-rj",
+          "text": "맞아요, 영상 보면서 저도 진짜 그 생각했어요 ㅎㅎ 풍경도 사람도 다 예쁘네요.",
+          "likeCount": 1,
+          "publishedAt": "2026-08-18T01:54:07Z"
+        }
+      ]
     },
     {
       "id": "UgwGUkBC2B8XIJicTm14AaABAg",
       "author": "@brandonkim1883",
       "authorImage": "https://yt3.ggpht.com/ytc/AIdro_kM55ibv1dD52bxtw69Jva-ly8-wNSRZDKJdIorog=s48-c-k-c0x00ffffff-no-rj",
       "text": "미화 힐달러는 뭐임? 자막도 힐달러로 되있고",
-      "likeCount": 0,
+      "likeCount": 1,
       "publishedAt": "2026-08-17T01:51:57Z",
-      "replyCount": 0,
-      "replies": []
+      "replyCount": 1,
+      "replies": [
+        {
+          "id": "UgwGUkBC2B8XIJicTm14AaABAg.A_aPV0VHamvA_czaOWiOGQ",
+          "author": "@DiscoveryWorldKR",
+          "authorImage": "https://yt3.ggpht.com/kJWv53ewJRJQ2JdNTcQLxKoLmpz7E6MvpW6i6GWrVqXAJs0nHvM6-TAKPQzfXVrxaECo-JzWu0A=s48-c-k-c0x00ffffff-no-rj",
+          "text": "1달러(일달러)를 발음이나 자동 자막이 잘못 인식했나 봐요 ㅋㅋㅋ 저도 듣고 엥? 했어요.",
+          "likeCount": 1,
+          "publishedAt": "2026-08-18T01:54:37Z"
+        }
+      ]
     }
   ]
 }
