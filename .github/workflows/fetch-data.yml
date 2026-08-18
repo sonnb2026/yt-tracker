@@ -17,9 +17,22 @@ on:
         description: "Chỉ lấy TOÀN BỘ lịch sử cho các kênh này (phân tách bởi dấu phẩy, để trống = không áp dụng riêng)"
         type: string
         default: ""
-  push:
-    paths:
-      - "channels.json"
+      only_channels:
+        description: "Chỉ fetch đúng các kênh này (phân tách bởi dấu phẩy), bỏ qua mọi kênh khác trong tab - dùng khi vừa thêm 1 kênh mới, không cần fetch lại cả tab. Để trống = fetch bình thường mọi kênh."
+        type: string
+        default: ""
+      only_list:
+        description: "Chỉ xử lý đúng tab này (tên tab), bỏ qua các tab khác - dùng kèm only_channels. Để trống = mọi tab."
+        type: string
+        default: ""
+# LƯU Ý: không còn trigger `push: paths: channels.json`. Trước đây mỗi lần
+# channels.json đổi (kể cả qua "Quản lý kênh" trên web) sẽ tự kích hoạt fetch
+# TOÀN BỘ mọi kênh trong tab đó, khá tốn quota chỉ để thêm 1 kênh. Giờ
+# api/manage-channels.js tự gọi workflow_dispatch NGAY sau khi thêm kênh/tab,
+# với only_channels/only_list chỉ trỏ đúng (các) kênh vừa thêm - xem file đó.
+# Xoá/đổi tên kênh hoặc tab không cần fetch ngay (không tốn quota, chỉ dọn
+# dẹp file), việc dọn dẹp sẽ tự xảy ra ở lần cron hàng ngày kế tiếp, hoặc
+# bấm nút "Fetch dữ liệu" trên web nếu muốn dọn ngay.
 
 permissions:
   contents: write
@@ -45,6 +58,8 @@ jobs:
           MAX_VIDEOS_PER_CHANNEL: "50"
           FULL_CHANNEL_HISTORY: ${{ github.event.inputs.full_channel_history || 'false' }}
           FULL_HISTORY_CHANNELS: ${{ github.event.inputs.full_history_channels || '' }}
+          ONLY_CHANNELS: ${{ github.event.inputs.only_channels || '' }}
+          ONLY_LIST: ${{ github.event.inputs.only_list || '' }}
           MAX_COMMENTS_PER_VIDEO: "100"
           MAX_REPLIES_PER_COMMENT: "20"
           COMMENT_ORDER: "relevance"
