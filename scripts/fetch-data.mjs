@@ -112,6 +112,36 @@ function shouldUseFullHistory(rawChannel) {
   return FULL_HISTORY_CHANNELS.some((c) => lower.includes(c) || c.includes(lower));
 }
 
+// Comma-separated list of channel handles/URLs that should be the ONLY
+// channels touched this run - every other channel in channels.json is
+// skipped entirely (zero API calls for it). Used right after adding a
+// channel/tab through "Quản lý kênh" so that action doesn't burn quota
+// re-checking every other already-tracked channel too. Skipped channels'
+// existing videos are left untouched in videoMap (loaded from the previous
+// run's output), so nothing is deleted or replaced - only the new channel's
+// data gets added. Empty (default) = no restriction, process every channel
+// as before. Matching is the same loose substring match as FULL_HISTORY_CHANNELS.
+const ONLY_CHANNELS = (process.env.ONLY_CHANNELS || "")
+  .split(",")
+  .map((s) => s.trim().toLowerCase())
+  .filter(Boolean);
+if (ONLY_CHANNELS.length) {
+  console.log(`ONLY_CHANNELS: chỉ fetch các kênh sau, bỏ qua mọi kênh khác trong (các) tab: ${ONLY_CHANNELS.join(", ")}`);
+}
+function matchesOnlyChannels(rawChannel) {
+  if (ONLY_CHANNELS.length === 0) return true; // không giới hạn
+  const lower = rawChannel.toLowerCase();
+  return ONLY_CHANNELS.some((c) => lower.includes(c) || c.includes(lower));
+}
+
+// Restrict the whole run to a single tab/list name (skip every other list
+// entirely, including not touching their files). Paired with ONLY_CHANNELS
+// when auto-triggered right after adding a channel to a known tab.
+const ONLY_LIST = (process.env.ONLY_LIST || "").trim();
+if (ONLY_LIST) {
+  console.log(`ONLY_LIST: chỉ xử lý tab "${ONLY_LIST}", bỏ qua các tab khác trong lần chạy này.`);
+}
+
 const MAX_COMMENTS_PER_VIDEO = parseInt(process.env.MAX_COMMENTS_PER_VIDEO || "100", 10);
 const MAX_REPLIES_PER_COMMENT = parseInt(process.env.MAX_REPLIES_PER_COMMENT || "20", 10);
 const COMMENT_ORDER = process.env.COMMENT_ORDER || "relevance";
@@ -468,6 +498,15 @@ async function fetchList(listName, rawChannels) {
   const videoMap = new Map(previousVideos);
 
   for (const rawChannel of rawChannels) {
+    if (!matchesOnlyChannels(rawChannel)) {
+      // ONLY_CHANNELS đang giới hạn lần chạy này - kênh này không nằm trong
+      // danh sách được chỉ định nên bỏ qua hoàn toàn, không gọi API nào cho
+      // nó. Dữ liệu cũ của kênh này (nếu có) vẫn nguyên vẹn trong videoMap
+      // vì videoMap được khởi tạo từ previousVideos ở trên - không bị xoá
+      // hay ghi đè, chỉ đơn giản là không cập nhật thêm lần này.
+      console.log(`\n=== Channel: ${rawChannel} === (bỏ qua - không khớp ONLY_CHANNELS)`);
+      continue;
+    }
     let channel = null;
     const isNewChannel = !channelMap[rawChannel];
     try {
@@ -634,6 +673,16 @@ async function main() {
   let grandTotalVideos = [];
   let allListsProcessed = true;
   for (const listName of listNames) {
+    if (ONLY_LIST && listName !== ONLY_LIST) {
+      // Tab này không nằm trong phạm vi ONLY_LIST - bỏ qua hoàn toàn, không
+      // đụng tới file của tab này. Vẫn phải nạp video CŨ của tab này vào
+      // grandTotalVideos (đọc thẳng từ file trên đĩa, không gọi API) để bước
+      // dọn dẹp comment thừa bên dưới không hiểu nhầm là các video này
+      // không còn được theo dõi nữa rồi xoá oan comment của chúng.
+      const prevMap = await loadPreviousVideos(listName);
+      grandTotalVideos = grandTotalVideos.concat([...prevMap.values()]);
+      continue;
+    }
     const videos = await fetchList(listName, channelLists[listName]);
     grandTotalVideos = grandTotalVideos.concat(videos);
     if (keysExhausted) {
@@ -641,6 +690,9 @@ async function main() {
       allListsProcessed = false;
       break;
     }
+  }
+  if (ONLY_LIST && !listNames.includes(ONLY_LIST)) {
+    console.error(`ONLY_LIST="${ONLY_LIST}" không khớp tab nào trong channels.json - không có gì được fetch.`);
   }
 
   // Prune comment files for videos no longer tracked in ANY list.
