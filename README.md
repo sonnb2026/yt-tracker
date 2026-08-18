@@ -1,3 +1,4 @@
+[README.md](https://github.com/user-attachments/files/31187103/README.md)
 # Bảng theo dõi kênh YouTube
 
 Web app tĩnh (deploy trên Vercel) để theo dõi thống kê của nhiều danh sách kênh
@@ -7,31 +8,46 @@ tiếng Việt), trợ lý phân tích AI (Gemini, người dùng tự nhập AP
 **quản lý kênh/tab ngay trên web** — không cần biết lập trình, không cần vào GitHub.
 
 Dữ liệu được GitHub Actions gọi API YouTube **1 lần/ngày** (hoặc bấm nút "Fetch dữ
-liệu" trên web để chạy ngay), lưu thành file JSON tĩnh trong repo. Frontend (Vercel)
-chỉ đọc file JSON này — **không cần API key YouTube ở phía trình duyệt**.
+liệu" trên web để chạy ngay cho mọi kênh), lưu thành file JSON tĩnh trong repo.
+Riêng khi **thêm 1 kênh/tab mới** qua bảng "Quản lý kênh", hệ thống chỉ fetch đúng
+kênh vừa thêm (không fetch lại toàn bộ kênh cũ trong tab, đỡ tốn quota) rồi **bổ
+sung** vào dữ liệu sẵn có, không xoá hay ghi đè gì cả. Frontend (Vercel) chỉ đọc
+file JSON này — **không cần API key YouTube ở phía trình duyệt**.
 
 ```
-┌─────────────┐   cron 1 lần/ngày      ┌──────────────────┐
-│ GitHub       │ ───────────────────▶  │ YouTube Data API │
-│ Actions      │ ◀───────────────────  │ v3               │
-└──────┬──────┘   video + comment data └──────────────────┘
-       │ commit public/data/*.json
+┌─────────────┐   cron 1 lần/ngày,     ┌──────────────────┐
+│ GitHub       │   hoặc workflow_dispatch│ YouTube Data API │
+│ Actions      │ ───────────────────▶  │ v3               │
+│ (fetch-data  │ ◀───────────────────  │                  │
+│  .yml)       │   video + comment data └──────────────────┘
+└──────┬──────┘
+       │ commit public/data/*.json (KHÔNG commit channels.json)
        ▼
 ┌─────────────┐   phục vụ file tĩnh   ┌──────────────────┐
 │ GitHub repo  │ ───────────────────▶ │ Vercel (frontend) │
 └─────────────┘  ◀─────────────────── │  + api/*.js       │
      ▲            workflow_dispatch,  └──────────────────┘
-     └── các nút "Fetch dữ liệu" / "Quản lý kênh" trên web gọi vào api/*.js
+     │            (only_channels/only_list khi thêm kênh)
+     └── commit channels.json ────────────┘
+          nút "Fetch dữ liệu" / "Quản lý kênh" trên web gọi vào api/*.js
 ```
+
+**Lưu ý quan trọng:** `channels.json` **không còn** tự động kích hoạt fetch mỗi khi
+bị sửa (đã bỏ trigger `push` trong `fetch-data.yml`). Thay vào đó,
+`api/manage-channels.js` **tự gọi `workflow_dispatch`** ngay sau khi commit
+`channels.json`, kèm tham số giới hạn `only_channels`/`only_list` — chỉ áp dụng khi
+**thêm** kênh/tab mới (xoá/đổi tên không cần fetch ngay, sẽ tự dọn ở lần cron kế
+tiếp hoặc khi bấm "Fetch dữ liệu" thủ công).
 
 ## 1. Cấu trúc project
 
 ```
 channels.json                 # danh sách kênh YouTube theo từng tab, vd { "MyTab": [...] }
 scripts/fetch-data.mjs        # script gọi YouTube API, chạy bởi GitHub Actions
-.github/workflows/fetch-data.yml  # lịch chạy cron + workflow_dispatch (chạy tay)
-api/trigger-fetch.js          # nút "Fetch dữ liệu" trên web gọi vào đây để kích hoạt workflow trên
-api/manage-channels.js        # nút "Quản lý kênh" trên web gọi vào đây để tự sửa channels.json trên GitHub
+.github/workflows/fetch-data.yml  # lịch chạy cron + workflow_dispatch (chạy tay hoặc tự động khi thêm kênh)
+api/trigger-fetch.js          # nút "Fetch dữ liệu" trên web gọi vào đây để kích hoạt workflow trên (fetch toàn bộ)
+api/manage-channels.js        # nút "Quản lý kênh" trên web gọi vào đây để tự sửa channels.json trên GitHub,
+                               # và khi thêm kênh/tab mới thì tự dispatch fetch RIÊNG cho kênh đó luôn
 public/                       # toàn bộ frontend, đây là thư mục Vercel sẽ publish
   index.html
   style.css
@@ -81,8 +97,9 @@ Repo trên GitHub → **Settings → Secrets and variables → Actions → New r
 
 ## 5. Tạo Personal Access Token (PAT) cho Vercel
 
-Web cần 1 token GitHub để tự động: (a) kích hoạt fetch dữ liệu, (b) tự sửa
-`channels.json` khi ai đó thêm kênh/tab qua bảng "Quản lý kênh".
+Web cần 1 token GitHub để tự động: (a) kích hoạt fetch dữ liệu (toàn bộ, khi bấm nút
+"Fetch dữ liệu", hoặc chỉ riêng kênh vừa thêm khi dùng "Quản lý kênh"), (b) tự sửa
+`channels.json` khi ai đó thêm/xoá kênh/tab qua bảng "Quản lý kênh".
 
 1. Vào [github.com/settings/tokens](https://github.com/settings/tokens) →
    **Generate new token (classic)**.
@@ -125,26 +142,36 @@ Mặc định workflow chạy **1 lần/ngày**: 23:00 UTC (~06:00 sáng giờ V
 sửa phần `cron` trong `.github/workflows/fetch-data.yml` (cú pháp cron chuẩn UTC).
 
 Bạn cũng có thể bấm nút **"Fetch dữ liệu"** trên web để chạy ngay bất cứ lúc nào —
-sẽ fetch **tất cả các tab** cùng lúc, không có tuỳ chọn chỉ chạy 1 tab.
+sẽ fetch **tất cả các tab, tất cả các kênh** cùng lúc, không có tuỳ chọn chỉ chạy 1
+tab/1 kênh qua nút này (dùng cho việc làm mới toàn bộ).
+
+Riêng khi **thêm kênh/tab mới qua bảng "Quản lý kênh"**, hệ thống tự chạy 1 lần fetch
+**giới hạn đúng kênh/tab vừa thêm** ngay sau đó — không đụng tới các kênh khác đang
+có trong tab, nên không tốn thêm quota cho những kênh không thay đổi gì (xem mục 9).
 
 ## 9. Hướng dẫn dùng các nút trên web
 
 ### Nút "Fetch dữ liệu"
-Chạy lấy dữ liệu YouTube mới nhất ngay, không cần đợi tới giờ cron. Mất vài phút,
-tải lại trang sau đó để xem kết quả. Có 2 tuỳ chọn nâng cao (thường không cần
-tích): "Ép làm mới toàn bộ bình luận" và "Lấy toàn bộ video của MỌI kênh" (kênh mới
-thêm đã tự động full-history sẵn rồi, 2 ô này chỉ dùng khi muốn làm lại cho *mọi*
-kênh cùng lúc, khá tốn quota).
+Chạy lấy dữ liệu YouTube mới nhất ngay cho **toàn bộ** kênh ở mọi tab, không cần đợi
+tới giờ cron. Mất vài phút, tải lại trang sau đó để xem kết quả. Có 2 tuỳ chọn nâng
+cao (thường không cần tích): "Ép làm mới toàn bộ bình luận" và "Lấy toàn bộ video của
+MỌI kênh" (kênh mới thêm đã tự động full-history sẵn rồi, 2 ô này chỉ dùng khi muốn
+làm lại cho *mọi* kênh cùng lúc, khá tốn quota).
 
 ### Nút "Quản lý kênh"
 - **Thêm kênh vào tab có sẵn**: chọn tab trong ô sổ xuống, dán link hoặc `@handle`
-  kênh YouTube, bấm "Thêm kênh".
+  kênh YouTube, bấm "Thêm kênh". Hệ thống tự lấy dữ liệu **riêng cho (các) kênh vừa
+  dán** (full lịch sử luôn, không giới hạn ~50 video) và **bổ sung** vào dữ liệu sẵn
+  có của tab đó — các kênh khác trong tab không bị fetch lại, không tốn quota oan.
 - **Tạo tab mới**: nhập tên tab (không dấu, không cách — vd `DuLich2`), dán link kênh
-  đầu tiên, bấm "Tạo tab mới".
+  đầu tiên, bấm "Tạo tab mới". Cũng chỉ fetch riêng (các) kênh của tab mới này.
 - **Xoá kênh**: chọn tab, danh sách kênh hiện có sẽ hiện bên dưới, bấm dấu ✕ cạnh
-  kênh muốn xoá.
-- Mọi thay đổi có hiệu lực trong **vài phút** (hệ thống tự chạy fetch cho kênh/tab
-  mới ngay sau khi bạn thêm) — không cần bấm thêm gì khác.
+  kênh muốn xoá. Việc xoá **không** kích hoạt fetch ngay (không cần thiết, không tốn
+  quota) — video của kênh đã xoá sẽ tự được dọn khỏi dữ liệu ở lần fetch tiếp theo
+  (cron hàng ngày, hoặc bấm "Fetch dữ liệu" thủ công nếu muốn dọn ngay).
+- **Đổi tên / xoá tab**: tương tự — chỉ đổi tên/dọn file dữ liệu tương ứng, không tự
+  fetch lại.
+- Với thêm kênh/tab: có hiệu lực trong **vài phút** — không cần bấm thêm gì khác.
 
 ### Các tính năng khác
 - Tìm kiếm theo tiêu đề video / tên kênh, lọc theo từng kênh riêng lẻ, lọc theo
@@ -172,6 +199,11 @@ kênh cùng lúc, khá tốn quota).
   đánh dấu `~` để phân biệt.
 - **`View 1 ngày` / `View 7 ngày`**: là tổng lượt xem của các video **đăng trong**
   khoảng thời gian đó, không phải tốc độ tăng trưởng.
+- Thêm kênh/tab qua "Quản lý kênh" cần token `GITHUB_TOKEN` có quyền **"Actions: Read
+  and write"** (ngoài quyền sửa `channels.json`) để tự dispatch fetch riêng cho kênh
+  vừa thêm — classic PAT scope `repo` đã có đủ. Nếu vì lý do gì đó việc tự dispatch
+  thất bại, `channels.json` vẫn được lưu thành công, chỉ cần tự bấm "Fetch dữ liệu"
+  (fetch toàn bộ) hoặc đợi cron ngày hôm sau để lấy dữ liệu kênh mới.
 
 ## 11. (Tuỳ chọn) Đồng bộ sang Google Sheets
 
