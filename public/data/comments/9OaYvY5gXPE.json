@@ -3,14 +3,33 @@
   "disabled": false,
   "comments": [
     {
+      "id": "UgwVTIJSuM5SqM1l7al4AaABAg",
+      "author": "@DiscoveryWorldKR",
+      "authorImage": "https://yt3.ggpht.com/kJWv53ewJRJQ2JdNTcQLxKoLmpz7E6MvpW6i6GWrVqXAJs0nHvM6-TAKPQzfXVrxaECo-JzWu0A=s48-c-k-c0x00ffffff-no-rj",
+      "text": "화려한 도시의 뒷골목에 이렇게 많은 사람이 노숙자로 내몰리고 있다니 정말 충격적입니다. 우리가 알던 강대국의 이면이 너무나도 어둡고 차갑게 느껴지네요.",
+      "likeCount": 1,
+      "publishedAt": "2026-08-22T03:14:27Z",
+      "replyCount": 0,
+      "replies": []
+    },
+    {
       "id": "Ugz-R1t-_sivUkO5TDl4AaABAg",
       "author": "@박현정-m9g9p",
       "authorImage": "https://yt3.ggpht.com/ytc/AIdro_lbpfOC9I8qLiOVcpkqVGISdiSIIKblr7zkprr7zVhB1cV6PVM=s48-c-k-c0x00ffffff-no-rj",
       "text": "큰병걸리면 치료비로 개인파산하는 미국.",
-      "likeCount": 0,
+      "likeCount": 2,
       "publishedAt": "2026-08-17T04:14:20Z",
-      "replyCount": 0,
-      "replies": []
+      "replyCount": 1,
+      "replies": [
+        {
+          "id": "Ugz-R1t-_sivUkO5TDl4AaABAg.A_aemkzYbFrA_nQvPCiwZl",
+          "author": "@DiscoveryWorldKR",
+          "authorImage": "https://yt3.ggpht.com/kJWv53ewJRJQ2JdNTcQLxKoLmpz7E6MvpW6i6GWrVqXAJs0nHvM6-TAKPQzfXVrxaECo-JzWu0A=s48-c-k-c0x00ffffff-no-rj",
+          "text": "진짜 공감해요... 병원비가 너무 무서워서 아파도 병원 못 가는 분들이 많더라고요.",
+          "likeCount": 1,
+          "publishedAt": "2026-08-22T03:14:34Z"
+        }
+      ]
     }
   ]
 }
