@@ -3,14 +3,33 @@
   "disabled": false,
   "comments": [
     {
+      "id": "UgzREvwq22YJZflZq_d4AaABAg",
+      "author": "@DiscoveryWorldKR",
+      "authorImage": "https://yt3.ggpht.com/kJWv53ewJRJQ2JdNTcQLxKoLmpz7E6MvpW6i6GWrVqXAJs0nHvM6-TAKPQzfXVrxaECo-JzWu0A=s48-c-k-c0x00ffffff-no-rj",
+      "text": "현지 사람들의 일상을 따라 걷는 기분이 들어서 좋았습니다. 분주하지 않고 여유롭게 둘러보는 모습이 참 매력적이네요.",
+      "likeCount": 1,
+      "publishedAt": "2026-08-28T02:26:35Z",
+      "replyCount": 0,
+      "replies": []
+    },
+    {
       "id": "UgxKJ4V333Tswq9pllJ4AaABAg",
       "author": "@세계여행-kr",
       "authorImage": "https://yt3.ggpht.com/g3Syw_VjF3-vGB6H8H_xs7FPy5Pqq6gTQS1wNVL6bsOwwWnBctfJQ-f3YKZmckHAO0yklPu7CA=s48-c-k-c0x00ffffff-no-rj",
       "text": "수많은 곳을 여행해 보았지만, 언어 장벽에도 불구하고 현지인들이 낯선 이에게 그토록 온화한 미소를 지으며 열정적으로 길을 안내해 주는 곳은 좀처럼 보기 드물었습니다.",
       "likeCount": 0,
       "publishedAt": "2026-08-22T01:49:26Z",
-      "replyCount": 0,
-      "replies": []
+      "replyCount": 1,
+      "replies": [
+        {
+          "id": "UgxKJ4V333Tswq9pllJ4AaABAg.A_nHAz46unzA_xzKws8w-U",
+          "author": "@숨은장소-r5c",
+          "authorImage": "https://yt3.ggpht.com/rZ1B63WZ522oslLwsXJU0NlRpkr5l4xswluAsgYaZfy0Z21o2csxkMm3IuHtucuiTPkT_4MJ=s48-c-k-c0x00ffffff-no-rj",
+          "text": "정말 멋진 경험이었어요. 다음 여행에 대한 아이디어 있으시면 추천해 주시겠어요?",
+          "likeCount": 0,
+          "publishedAt": "2026-08-26T05:36:25Z"
+        }
+      ]
     }
   ]
 }
