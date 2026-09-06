@@ -1,11 +1,16 @@
 {
   "list": "KR LIFE IN",
-  "lastUpdated": "2026-09-05T00:43:38.078Z",
+  "lastUpdated": "2026-09-06T00:44:15.196Z",
   "channelCount": 6,
-  "videoCount": 318,
-  "quotaUnitsUsed": 37,
+  "videoCount": 319,
+  "quotaUnitsUsed": 160,
   "apiKeysConfigured": 3,
   "allKeysExhausted": false,
-  "errors": [],
+  "errors": [
+    {
+      "channel": "https://www.youtube.com/@%EC%84%B8%EA%B3%84%EC%97%AC%ED%96%89%EC%9E%90-KR/featured",
+      "error": "Channel not found for \"https://www.youtube.com/@%EC%84%B8%EA%B3%84%EC%97%AC%ED%96%89%EC%9E%90-KR/featured\""
+    }
+  ],
   "replyErrors": []
 }
