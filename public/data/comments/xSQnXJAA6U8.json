@@ -147,8 +147,17 @@
       "text": "Greetings to Belgium from Ecuador, a country in South America. It is a very beautiful country.",
       "likeCount": 1,
       "publishedAt": "2026-08-15T14:00:22Z",
-      "replyCount": 0,
-      "replies": []
+      "replyCount": 1,
+      "replies": [
+        {
+          "id": "UgyubT3poXxFOorySPJ4AaABAg.A_XZGJSQtp0Ab-tsrnWJu_",
+          "author": "@laurent-x4w",
+          "authorImage": "https://yt3.ggpht.com/ytc/AIdro_l7I9Z2ruLwb_8O5wqZX3BeggKDhG9XW1jritguKKq0ERDMHNocJbKZGdEYuVaEVLicvQ=s48-c-k-c0x00ffffff-no-rj",
+          "text": "Greetings to Ecuador from Belgium !",
+          "likeCount": 0,
+          "publishedAt": "2026-09-21T05:17:53Z"
+        }
+      ]
     },
     {
       "id": "UgySgCe8pBgwoSOhRHB4AaABAg",
@@ -230,7 +239,7 @@
     {
       "id": "UgyT5rFmiVSV6r80czF4AaABAg",
       "author": "@ImanMuhajirin-r4g",
-      "authorImage": "https://yt3.ggpht.com/pCyYDbxiUQrh5lYevN5j9fLS9fEbcVvBDn7vKvHeSROU3BYYdGtjUN9ra3MBam-cWOyd0LsX=s48-c-k-c0x00ffffff-no-rj",
+      "authorImage": "https://yt3.ggpht.com/E5-fFyVZtfcjyzc7EDsJFWbEJjU3mlvBsvK8H5G28qnQojbM3wl6sanpqJZcS54JIovrKbwin9w=s48-c-k-c0x00ffffff-no-rj",
       "text": "DISTRICT LOCAL GOVERNMENT (BELGIUM)",
       "likeCount": 0,
       "publishedAt": "2026-08-07T18:13:30Z",
@@ -333,16 +342,6 @@
       "text": "Flemish in Flanders, not Dutch.",
       "likeCount": 0,
       "publishedAt": "2026-06-28T16:32:56Z",
-      "replyCount": 0,
-      "replies": []
-    },
-    {
-      "id": "UgxKm1crCPmBKRMvZLl4AaABAg",
-      "author": "@jonathanmich2587",
-      "authorImage": "https://yt3.ggpht.com/ytc/AIdro_kDR6b-HKXTjMhl5EilgFo7-A88xVuHHu94f-rZpMM=s48-c-k-c0x00ffffff-no-rj",
-      "text": "❤",
-      "likeCount": 0,
-      "publishedAt": "2026-06-19T13:42:29Z",
       "replyCount": 0,
       "replies": []
     }
