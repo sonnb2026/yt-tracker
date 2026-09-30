@@ -3,11 +3,40 @@
   "disabled": false,
   "comments": [
     {
+      "id": "UgwvdHfKtyyZBVm68Mt4AaABAg",
+      "author": "@RajendranathDudhnath",
+      "authorImage": "https://yt3.ggpht.com/mz9Cppb-Z8WavN-Uyq8G8K8NQjWr1RtGlPqyYFYvxsG_cIgdkEqmJFIvSW2XdG7vHHz2XfdRoA=s48-c-k-c0x00ffffff-no-rj",
+      "text": "From Guyana",
+      "likeCount": 0,
+      "publishedAt": "2026-09-29T21:42:03Z",
+      "replyCount": 0,
+      "replies": []
+    },
+    {
+      "id": "UgxnyGZM-ct_zMXUcrR4AaABAg",
+      "author": "@kaylavelle2659",
+      "authorImage": "https://yt3.ggpht.com/ytc/AIdro_n2Fczg0UbYUeyMGzwV_un9LTAiC8Ux1EVpEkksHJc=s48-c-k-c0x00ffffff-no-rj",
+      "text": "Very informative",
+      "likeCount": 0,
+      "publishedAt": "2026-09-29T07:00:50Z",
+      "replyCount": 1,
+      "replies": [
+        {
+          "id": "UgxnyGZM-ct_zMXUcrR4AaABAg.AbKg0vzag3uAbKg5G3Eq75",
+          "author": "@kaylavelle2659",
+          "authorImage": "https://yt3.ggpht.com/ytc/AIdro_n2Fczg0UbYUeyMGzwV_un9LTAiC8Ux1EVpEkksHJc=s48-c-k-c0x00ffffff-no-rj",
+          "text": "Youngstown Ohio",
+          "likeCount": 0,
+          "publishedAt": "2026-09-29T07:01:26Z"
+        }
+      ]
+    },
+    {
       "id": "UgwdMwAuFyTwnOGDbg14AaABAg",
       "author": "@OmjNdawula",
       "authorImage": "https://yt3.ggpht.com/ytc/AIdro_mV9ZEac7RzPRT41iu9zNSTiFISmS-SrX6vMoce38cTiomZA5hxEIgjyjP4YaOPJfc6DQ=s48-c-k-c0x00ffffff-no-rj",
       "text": "Kampala, Uganda",
-      "likeCount": 0,
+      "likeCount": 1,
       "publishedAt": "2026-09-29T00:35:02Z",
       "replyCount": 0,
       "replies": []
