@@ -496,8 +496,17 @@
       "text": "NAO FALOU NADA DE GALICIA PORQUE",
       "likeCount": 0,
       "publishedAt": "2026-07-23T01:33:33Z",
-      "replyCount": 0,
-      "replies": []
+      "replyCount": 1,
+      "replies": [
+        {
+          "id": "Ugx0MLVlwSmdifsOUKV4AaABAg.AZa-WMrP06cAbkbonsRQ6v",
+          "author": "@agcristo1",
+          "authorImage": "https://yt3.ggpht.com/ytc/AIdro_kxj4k2s43KdBjkV2gg9rCaQyQbPdZS-CtZzYQaIu60pA=s48-c-k-c0x00ffffff-no-rj",
+          "text": "Ni de Extremadura",
+          "likeCount": 0,
+          "publishedAt": "2026-10-09T18:03:35Z"
+        }
+      ]
     },
     {
       "id": "UgxNLoa23fVYuB6zY6t4AaABAg",
