@@ -3,14 +3,33 @@
   "disabled": false,
   "comments": [
     {
+      "id": "UgyI6d3CmGRo5xeV3UV4AaABAg",
+      "author": "@JoemarGzian",
+      "authorImage": "https://yt3.ggpht.com/ytc/AIdro_khSbcYOk-ZJpJdnM0KT63okOiFU3WwtWMvAi-S5gxJah9fOAID9GlTIjWJnSHyDKWk4A=s48-c-k-c0x00ffffff-no-rj",
+      "text": "That's interesting.",
+      "likeCount": 0,
+      "publishedAt": "2026-10-10T10:21:49Z",
+      "replyCount": 0,
+      "replies": []
+    },
+    {
       "id": "Ugw-J4OUl1vdgr56CGF4AaABAg",
       "author": "@KumarWeerasingha",
       "authorImage": "https://yt3.ggpht.com/ytc/AIdro_l0-93o-N4jweYv7-bzEspdpjpNmkF1pKsdg14yNPPlM54RTS3m4MWNNzI-8fBIvT4zFA=s48-c-k-c0x00ffffff-no-rj",
       "text": "Watching from Sri Lanka thanks.",
-      "likeCount": 0,
+      "likeCount": 1,
       "publishedAt": "2026-10-09T11:41:58Z",
-      "replyCount": 0,
-      "replies": []
+      "replyCount": 1,
+      "replies": [
+        {
+          "id": "Ugw-J4OUl1vdgr56CGF4AaABAg.Abjw8mtG0aRAbm5VaNp3p1",
+          "author": "@Globallife.documentary",
+          "authorImage": "https://yt3.ggpht.com/UT4yqZ2DrZ2fBIIQWOCcVrQYBje265v4HWuZn65ElT3j5IRtHyIw-Ezzb6kX6kLSxPFTaiT5EkE=s48-c-k-c0x00ffffff-no-rj",
+          "text": "Warm greetings to Sri Lanka! Thank you so much for tuning in and checking in with our community. How is life treating you in Sri Lanka today, and which part of the documentary made the deepest impression on you?",
+          "likeCount": 0,
+          "publishedAt": "2026-10-10T07:50:57Z"
+        }
+      ]
     },
     {
       "id": "UgzMJ34HLSEQsyhsUzt4AaABAg",
