@@ -1,11 +1,16 @@
 {
   "list": "4K TA",
-  "lastUpdated": "2026-10-14T01:42:06.374Z",
+  "lastUpdated": "2026-10-15T01:18:15.557Z",
   "channelCount": 3,
-  "videoCount": 325,
-  "quotaUnitsUsed": 228,
+  "videoCount": 326,
+  "quotaUnitsUsed": 286,
   "apiKeysConfigured": 3,
   "allKeysExhausted": false,
-  "errors": [],
+  "errors": [
+    {
+      "channel": "https://www.youtube.com/@docviajesmundo/videos",
+      "error": "playlistItems failed: playlistNotFound"
+    }
+  ],
   "replyErrors": []
 }
