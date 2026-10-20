@@ -39,8 +39,17 @@
       "text": "Supper movie thank you",
       "likeCount": 0,
       "publishedAt": "2026-10-10T06:16:21Z",
-      "replyCount": 0,
-      "replies": []
+      "replyCount": 1,
+      "replies": [
+        {
+          "id": "Ugwsqpk1zP62rw_QkqB4AaABAg.AblvfmPGL1vAc95ZF_3QGo",
+          "author": "@EpicExplorationsTVEN",
+          "authorImage": "https://yt3.ggpht.com/69Hapm7BX2iyEAY5Es9sywuFcdERelWzVaWCc10A6i-BicsMViOURXiViX57nZQ-ASwdTei-=s48-c-k-c0x00ffffff-no-rj",
+          "text": "❤️🙏",
+          "likeCount": 0,
+          "publishedAt": "2026-10-19T15:33:13Z"
+        }
+      ]
     },
     {
       "id": "UgzP2REVRCRzXglLAsR4AaABAg",
@@ -634,16 +643,6 @@
           "publishedAt": "2026-07-24T17:16:47Z"
         }
       ]
-    },
-    {
-      "id": "UgyXv9QzOrm0XByby0F4AaABAg",
-      "author": "@TruthBehindNations01",
-      "authorImage": "https://yt3.ggpht.com/YE5lsjStC3Z6Yw3UqbZzZuE1Cshfy66z01-D99vfKF0x-NgDSXBLfGudKuDWgj4gt9WDy41w=s48-c-k-c0x00ffffff-no-rj",
-      "text": "💖💖💖❤",
-      "likeCount": 2,
-      "publishedAt": "2026-07-21T18:27:11Z",
-      "replyCount": 0,
-      "replies": []
     }
   ]
 }
