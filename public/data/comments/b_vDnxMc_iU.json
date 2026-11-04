@@ -3,14 +3,33 @@
   "disabled": false,
   "comments": [
     {
+      "id": "Ugx5fvHGZorWckuABo14AaABAg",
+      "author": "@lucianobrivido1270",
+      "authorImage": "https://yt3.ggpht.com/CgLykWEgk4Th4bTJI5wehMCe-m6lGwtpGssy1GUsTPhUc9N-qg33-t7uatefjW5B738vngitXVg=s48-c-k-c0x00ffffff-no-rj",
+      "text": "",
+      "likeCount": 0,
+      "publishedAt": "2026-11-03T08:21:52Z",
+      "replyCount": 0,
+      "replies": []
+    },
+    {
       "id": "UgxdyRgQH_mK8hy-8AN4AaABAg",
       "author": "@MoviesBitcoin",
       "authorImage": "https://yt3.ggpht.com/yMgM47EBbhZZMlGrQnmzZgwksjixZN_9CFOYzl7cHMS-OMCUvjly7qa6lIAzB4Dt5WpvadGpHPA=s48-c-k-c0x00ffffff-no-rj",
       "text": "Orangi Town is incredible!🙄",
-      "likeCount": 0,
+      "likeCount": 1,
       "publishedAt": "2026-11-03T03:09:46Z",
-      "replyCount": 0,
-      "replies": []
+      "replyCount": 1,
+      "replies": [
+        {
+          "id": "UgxdyRgQH_mK8hy-8AN4AaABAg.AcjOP7rnTAqAcjvknmqPuO",
+          "author": "@Globallife.documentary",
+          "authorImage": "https://yt3.ggpht.com/UT4yqZ2DrZ2fBIIQWOCcVrQYBje265v4HWuZn65ElT3j5IRtHyIw-Ezzb6kX6kLSxPFTaiT5EkE=s48-c-k-c0x00ffffff-no-rj",
+          "text": "Thank you for highlighting Orangi Town! In a settlement of over two million people, watching residents turn home looms, workshops, and collective willpower into an internationally recognized self-help blueprint leaves a powerful impression on all of us.",
+          "likeCount": 0,
+          "publishedAt": "2026-11-03T08:09:57Z"
+        }
+      ]
     },
     {
       "id": "UgzcjtC1ry64sLnK79x4AaABAg",
@@ -27,10 +46,18 @@
       "author": "@jackwright1070",
       "authorImage": "https://yt3.ggpht.com/ytc/AIdro_mFUnAMvEzY6b5KU-D8MSa5n_bgPZe3sT3NlimrDCgSIPY=s48-c-k-c0x00ffffff-no-rj",
       "text": "What a disgraceful  Planet we live on.",
-      "likeCount": 0,
+      "likeCount": 1,
       "publishedAt": "2026-11-02T19:57:18Z",
-      "replyCount": 1,
+      "replyCount": 2,
       "replies": [
+        {
+          "id": "UgyX-ORj2pEOfW-rkyt4AaABAg.AcibuhJWkNJAcjvqkXJbAs",
+          "author": "@Globallife.documentary",
+          "authorImage": "https://yt3.ggpht.com/UT4yqZ2DrZ2fBIIQWOCcVrQYBje265v4HWuZn65ElT3j5IRtHyIw-Ezzb6kX6kLSxPFTaiT5EkE=s48-c-k-c0x00ffffff-no-rj",
+          "text": "It is impossible not to feel frustrated by the greed, conflict, and apathy that push so many innocent people into these harsh environments while the rest of the world looks away.",
+          "likeCount": 0,
+          "publishedAt": "2026-11-03T08:10:46Z"
+        },
         {
           "id": "UgyX-ORj2pEOfW-rkyt4AaABAg.AcibuhJWkNJAcj53po5bj_",
           "author": "@TravelToFacts",
@@ -46,10 +73,19 @@
       "author": "@LennoxCarew",
       "authorImage": "https://yt3.ggpht.com/ytc/AIdro_k9XrKEjeqnVQ_ExBSkLiNtUAbq9qlCdjlKe0ywClY98iY03q7dSB_WmMajNAsA2n6ytg=s48-c-k-c0x00ffffff-no-rj",
       "text": "I'm viewing from Trinidad",
-      "likeCount": 0,
+      "likeCount": 1,
       "publishedAt": "2026-11-02T19:55:03Z",
-      "replyCount": 0,
-      "replies": []
+      "replyCount": 1,
+      "replies": [
+        {
+          "id": "UgzUGE35F5Eljt27YqZ4AaABAg.AcibeApENvfAcjvWyZmAX8",
+          "author": "@Globallife.documentary",
+          "authorImage": "https://yt3.ggpht.com/UT4yqZ2DrZ2fBIIQWOCcVrQYBje265v4HWuZn65ElT3j5IRtHyIw-Ezzb6kX6kLSxPFTaiT5EkE=s48-c-k-c0x00ffffff-no-rj",
+          "text": "Thanks for following from Trinidad!",
+          "likeCount": 0,
+          "publishedAt": "2026-11-03T08:07:56Z"
+        }
+      ]
     },
     {
       "id": "Ugwnd7ayZUrv3GhVEQd4AaABAg",

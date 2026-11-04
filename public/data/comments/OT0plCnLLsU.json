@@ -3,14 +3,33 @@
   "disabled": false,
   "comments": [
     {
+      "id": "UgyW2QSEB5AV5UimSqV4AaABAg",
+      "author": "@AmazingDiscoveriesTopUS",
+      "authorImage": "https://yt3.ggpht.com/mWQlW84MbnlW7e78Ln_Hiexvd-tTPHfRZFQKud6DoN3cbWfnlpLwnUJCzCh4l80FPm8TX2xC=s48-c-k-c0x00ffffff-no-rj",
+      "text": "Toronto, Canada",
+      "likeCount": 0,
+      "publishedAt": "2026-11-03T08:31:56Z",
+      "replyCount": 0,
+      "replies": []
+    },
+    {
       "id": "UgwrD3Hdxz6G5aUZzFV4AaABAg",
       "author": "@lucianobrivido1270",
       "authorImage": "https://yt3.ggpht.com/CgLykWEgk4Th4bTJI5wehMCe-m6lGwtpGssy1GUsTPhUc9N-qg33-t7uatefjW5B738vngitXVg=s48-c-k-c0x00ffffff-no-rj",
       "text": "ciaoooo gritings from belgium ",
-      "likeCount": 0,
+      "likeCount": 1,
       "publishedAt": "2026-11-02T10:46:42Z",
-      "replyCount": 0,
-      "replies": []
+      "replyCount": 1,
+      "replies": [
+        {
+          "id": "UgwrD3Hdxz6G5aUZzFV4AaABAg.Achctys2MIKAcjvtrpZwR6",
+          "author": "@Globallife.documentary",
+          "authorImage": "https://yt3.ggpht.com/UT4yqZ2DrZ2fBIIQWOCcVrQYBje265v4HWuZn65ElT3j5IRtHyIw-Ezzb6kX6kLSxPFTaiT5EkE=s48-c-k-c0x00ffffff-no-rj",
+          "text": "Warmest greetings all the way to Belgium!",
+          "likeCount": 0,
+          "publishedAt": "2026-11-03T08:11:11Z"
+        }
+      ]
     },
     {
       "id": "Ugx2BQKCOsNA63OrkqZ4AaABAg",
