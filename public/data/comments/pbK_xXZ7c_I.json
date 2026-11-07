@@ -19,8 +19,17 @@
       "text": "Hi new subscriber, I love your place🫰🫰🫰",
       "likeCount": 1,
       "publishedAt": "2026-11-05T11:51:16Z",
-      "replyCount": 0,
-      "replies": []
+      "replyCount": 1,
+      "replies": [
+        {
+          "id": "UgwKri9G4qMlyfwXswF4AaABAg.AcpTfSi_yrDAcsl_cssp9C",
+          "author": "@EpicExplorationsTVEN",
+          "authorImage": "https://yt3.ggpht.com/69Hapm7BX2iyEAY5Es9sywuFcdERelWzVaWCc10A6i-BicsMViOURXiViX57nZQ-ASwdTei-=s48-c-k-c0x00ffffff-no-rj",
+          "text": "Welcome, I’m so happy to have you here ❤️🌍",
+          "likeCount": 0,
+          "publishedAt": "2026-11-06T18:34:13Z"
+        }
+      ]
     },
     {
       "id": "UgwciSxfXPp-3RFE2w94AaABAg",
